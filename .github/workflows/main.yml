@@ -38,7 +38,11 @@ jobs:
       run: mvn clean package
       working-directory: ./SimpleWebApp
 
-    # Step 5: Upload the WAR file as an artifact
+    # Step 5: Debug directory contents (Check if WAR file exists)
+    - name: Debug Directory After Build
+      run: ls -R ./SimpleWebApp/target
+
+    # Step 6: Upload WAR Artifact
     - name: Upload WAR Artifact
       uses: actions/upload-artifact@v3
       with:
