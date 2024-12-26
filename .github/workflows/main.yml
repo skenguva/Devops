@@ -1,50 +1,45 @@
-name: Build Java WAR
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
-      - main
+      - main # Change this to your desired branch
   pull_request:
-    branches:
-      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout code from repository
+    # Step 1: Check out the code
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Java environment
-    - name: Set up JDK 17
+    # Step 2: Set up JDK
+    - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        java-version: 17
         distribution: 'temurin'
+        java-version: '17' # Change this to your Java version
 
-    # Step 3: Cache Maven dependencies
-    - name: Cache Maven dependencies
-      uses: actions/cache@v3
+    # Step 3: Build the WAR file
+    - name: Build WAR File
+      run: mvn clean package -DskipTests # Update if using Gradle
+
+    # Step 4: Build Docker Image
+    - name: Log in to DockerHub
+      uses: docker/login-action@v2
       with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('SimpleWebApp/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Display war file name
+      run: ls -ltr target/
+      
+    - name: Build and Tag Docker Image
+      run: |
+        docker build --build-arg WAR_FILE=target/your-app.war -t your-dockerhub-username/your-app:latest .
 
-    # Step 4: Build the WAR file
-    - name: Build with Maven
-      run: mvn clean package
-      working-directory: ./SimpleWebApp
-
-    # Step 5: Debug directory contents (Check if WAR file exists)
-    - name: Debug Directory After Build
-      run: ls -R ./SimpleWebApp/target
-
-    # Step 6: Upload WAR Artifact
-    - name: Upload WAR Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: java-webapp-war
-        path: ./SimpleWebApp/target/*.war
+    # Step 5: Push Docker Image
+    - name: Push Docker Image
+      run: docker push your-dockerhub-username/your-app:latest
