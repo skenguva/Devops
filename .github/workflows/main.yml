@@ -1,10 +1,7 @@
 name: Build and Push Docker Image
 
 on:
-  push:
-    branches:
-      - main # Change this to your desired branch
-  pull_request:
+ workflow_dispatch:
 
 jobs:
   build:
@@ -38,8 +35,8 @@ jobs:
       
     - name: Build and Tag Docker Image
       run: |
-        docker build --build-arg WAR_FILE=target/your-app.war -t your-dockerhub-username/your-app:latest .
+        docker build --build-arg WAR_FILE=target/your-app.war -t skenguva1/My_webapp:latest .
 
     # Step 5: Push Docker Image
     - name: Push Docker Image
-      run: docker push your-dockerhub-username/your-app:latest
+      run: docker push skenguva1/My_webapp:latest
